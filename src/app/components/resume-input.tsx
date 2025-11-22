@@ -46,6 +46,17 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
     e.preventDefault();
     e.stopPropagation();
   };
+  
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isLoading) return;
+    const text = e.clipboardData.getData('text/plain');
+    if (text) {
+      setResumeText(document.execCommand('insertText', false, text));
+    }
+  };
+
 
   return (
     <Card>
@@ -62,6 +73,7 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
           disabled={isLoading}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
+          onPaste={handlePaste}
         />
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
           <Button onClick={onAnalyze} className="w-full" disabled={isLoading}>
