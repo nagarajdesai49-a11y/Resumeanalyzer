@@ -1,6 +1,6 @@
 "use client";
 
-import type { Dispatch, type SetStateAction } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -54,6 +54,7 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
                 content += item.str;
                 lastY = item.transform[5];
               });
+              content += '\n';
             }
             setResumeText(content);
           } catch (error) {
@@ -96,6 +97,11 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
     const file = event.dataTransfer.files?.[0];
     if (file) {
       processFile(file);
+    } else {
+      const droppedText = event.dataTransfer.getData('text');
+      if (droppedText) {
+        setResumeText(droppedText);
+      }
     }
   };
 
