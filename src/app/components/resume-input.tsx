@@ -14,6 +14,11 @@ interface ResumeInputProps {
 }
 
 const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: ResumeInputProps) => {
+  
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setResumeText(event.target.value);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -21,9 +26,10 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
       </CardHeader>
       <CardContent className="space-y-4">
         <Textarea
+          key={resumeText}
           placeholder="Paste your resume here..."
-          value={resumeText}
-          onChange={(e) => setResumeText(e.target.value)}
+          defaultValue={resumeText}
+          onInput={handleInputChange}
           rows={15}
           className="resize-y"
           disabled={isLoading}
