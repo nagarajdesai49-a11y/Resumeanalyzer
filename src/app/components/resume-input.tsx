@@ -4,7 +4,9 @@ import type { Dispatch, type SetStateAction } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2 } from 'lucide-react';
+import { Loader2, Upload, Wand2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useRef } from 'react';
 
 interface ResumeInputProps {
   resumeText: string;
@@ -14,23 +16,66 @@ interface ResumeInputProps {
 }
 
 const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: ResumeInputProps) => {
-  
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setResumeText(event.target.value);
   };
-
-  const handleDragOver = (event: React.DragEvent<HTMLTextAreaElement>) => {
-    event.preventDefault();
-  };
   
-  const handleDrop = (event: React.DragEvent<HTMLTextAreaElement>) => {
-    event.preventDefault();
-    const text = event.dataTransfer.getData('text/plain');
-    if (text) {
-      setResumeText(resumeText + text);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type === 'text/plain') {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target?.result as string;
+          setResumeText(text);
+        };
+        reader.readAsText(file);
+      } else {
+        toast({
+          title: 'Invalid File Type',
+          description: 'Please upload a .txt file.',
+          variant: 'destructive',
+        });
+      }
     }
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+  };
+  
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files?.[0];
+    if (file) {
+      if (file.type === 'text/plain') {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target?.result as string;
+          setResumeText(text);
+        };
+        reader.readAsText(file);
+      } else {
+         toast({
+          title: 'Invalid File Type',
+          description: 'Please drag and drop a .txt file.',
+          variant: 'destructive',
+        });
+      }
+    } else {
+        const text = event.dataTransfer.getData('text/plain');
+        if (text) {
+          setResumeText(resumeText + text);
+        }
+    }
+  };
 
   return (
     <Card>
@@ -39,7 +84,7 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
       </CardHeader>
       <CardContent className="space-y-4">
         <Textarea
-          placeholder="Paste or drag your resume here..."
+          placeholder="Paste your resume here, or drag and drop a .txt file..."
           value={resumeText}
           onChange={handleInputChange}
           onDragOver={handleDragOver}
@@ -57,6 +102,17 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
             )}
             Analyze with AI
           </Button>
+          <Button onClick={handleUploadClick} variant="outline" className="w-full" disabled={isLoading}>
+            <Upload />
+            Upload .txt file
+          </Button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".txt"
+            className="hidden"
+          />
         </div>
       </CardContent>
     </Card>
