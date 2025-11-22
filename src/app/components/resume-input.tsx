@@ -16,7 +16,33 @@ interface ResumeInputProps {
 
 const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: ResumeInputProps) => {
   
-  const preventDefault = (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (isLoading) return;
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (file.type === "text/plain") {
+        const reader = new FileReader();
+        reader.onload = (loadEvent) => {
+          const text = loadEvent.target?.result;
+          if (typeof text === 'string') {
+            setResumeText(text);
+          }
+        };
+        reader.readAsText(file);
+      }
+    } else {
+        const text = e.dataTransfer.getData('text/plain');
+        if (text) {
+            setResumeText(text);
+        }
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
   };
@@ -28,19 +54,14 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
       </CardHeader>
       <CardContent className="space-y-4">
         <Textarea
-          placeholder="Paste your resume here..."
+          placeholder="Paste or drop your resume here..."
           value={resumeText}
           onChange={(e) => setResumeText(e.target.value)}
           rows={15}
           className="resize-y"
           disabled={isLoading}
-          onDrag={preventDefault}
-          onDragStart={preventDefault}
-          onDragEnd={preventDefault}
-          onDragOver={preventDefault}
-          onDragEnter={preventDefault}
-          onDragLeave={preventDefault}
-          onDrop={preventDefault}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
         />
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
           <Button onClick={onAnalyze} className="w-full" disabled={isLoading}>
