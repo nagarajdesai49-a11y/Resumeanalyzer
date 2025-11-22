@@ -27,48 +27,52 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
     setResumeText(event.target.value);
   };
   
+  const processFile = (file: File) => {
+    if (file.type === 'text/plain') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        setResumeText(text);
+      };
+      reader.readAsText(file);
+    } else if (file.type === 'application/pdf') {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const data = e.target?.result;
+        if (data) {
+          try {
+            const pdf = await pdfjsLib.getDocument({data: data as ArrayBuffer}).promise;
+            let content = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+              const textContent = await page.getTextContent();
+              content += textContent.items.map((item: any) => item.str).join(' ');
+            }
+            setResumeText(content);
+          } catch (error) {
+            console.error('Failed to parse PDF:', error);
+            toast({
+              title: 'PDF Parsing Error',
+              description: 'Could not extract text from the PDF. Please try a different file.',
+              variant: 'destructive',
+            });
+          }
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      toast({
+        title: 'Invalid File Type',
+        description: 'Please upload a .txt or .pdf file.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.type === 'text/plain') {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const text = e.target?.result as string;
-          setResumeText(text);
-        };
-        reader.readAsText(file);
-      } else if (file.type === 'application/pdf') {
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          const data = e.target?.result;
-          if (data) {
-            try {
-              const pdf = await pdfjsLib.getDocument({data: data as ArrayBuffer}).promise;
-              let content = '';
-              for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                content += textContent.items.map((item: any) => item.str).join(' ');
-              }
-              setResumeText(content);
-            } catch (error) {
-              console.error('Failed to parse PDF:', error);
-              toast({
-                title: 'PDF Parsing Error',
-                description: 'Could not extract text from the PDF. Please try a different file.',
-                variant: 'destructive',
-              });
-            }
-          }
-        };
-        reader.readAsArrayBuffer(file);
-      } else {
-        toast({
-          title: 'Invalid File Type',
-          description: 'Please upload a .txt or .pdf file.',
-          variant: 'destructive',
-        });
-      }
+      processFile(file);
     }
   };
 
@@ -84,50 +88,12 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
     event.preventDefault();
     const file = event.dataTransfer.files?.[0];
     if (file) {
-      if (file.type === 'text/plain') {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const text = e.target?.result as string;
-          setResumeText(text);
-        };
-        reader.readAsText(file);
-      } else if (file.type === 'application/pdf') {
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          const data = e.target?.result;
-          if (data) {
-            try {
-              const pdf = await pdfjsLib.getDocument({data: data as ArrayBuffer}).promise;
-              let content = '';
-              for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                content += textContent.items.map((item: any) => item.str).join(' ');
-              }
-              setResumeText(content);
-            } catch (error) {
-              console.error('Failed to parse PDF:', error);
-              toast({
-                title: 'PDF Parsing Error',
-                description: 'Could not extract text from the PDF. Please try a different file.',
-                variant: 'destructive',
-              });
-            }
-          }
-        };
-        reader.readAsArrayBuffer(file);
-      } else {
-         toast({
-          title: 'Invalid File Type',
-          description: 'Please drag and drop a .txt or .pdf file.',
-          variant: 'destructive',
-        });
-      }
+      processFile(file);
     } else {
-        const text = event.dataTransfer.getData('text/plain');
-        if (text) {
-          setResumeText(resumeText + text);
-        }
+      const text = event.dataTransfer.getData('text/plain');
+      if (text) {
+        setResumeText(resumeText + text);
+      }
     }
   };
 
