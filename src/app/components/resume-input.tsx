@@ -45,4 +45,3 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
 };
 
 export default ResumeInput;
-
