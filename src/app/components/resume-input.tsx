@@ -15,6 +15,12 @@ interface ResumeInputProps {
 }
 
 const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: ResumeInputProps) => {
+  
+  const preventDefault = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -28,6 +34,13 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
           rows={15}
           className="resize-y"
           disabled={isLoading}
+          onDrag={preventDefault}
+          onDragStart={preventDefault}
+          onDragEnd={preventDefault}
+          onDragOver={preventDefault}
+          onDragEnter={preventDefault}
+          onDragLeave={preventDefault}
+          onDrop={preventDefault}
         />
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
           <Button onClick={onAnalyze} className="w-full" disabled={isLoading}>
