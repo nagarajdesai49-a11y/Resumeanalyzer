@@ -10,7 +10,7 @@ import { useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 
 // The workerSrc property shall be specified.
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.mjs`;
 
 interface ResumeInputProps {
   resumeText: string;
@@ -46,7 +46,14 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
             for (let i = 1; i <= pdf.numPages; i++) {
               const page = await pdf.getPage(i);
               const textContent = await page.getTextContent();
-              content += textContent.items.map((item: any) => item.str).join(' ');
+              let lastY = 0;
+              textContent.items.forEach((item: any) => {
+                if (lastY !== item.transform[5] && lastY !== 0) {
+                  content += '\n';
+                }
+                content += item.str;
+                lastY = item.transform[5];
+              });
             }
             setResumeText(content);
           } catch (error) {
@@ -89,22 +96,18 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
     const file = event.dataTransfer.files?.[0];
     if (file) {
       processFile(file);
-    } else {
-      const text = event.dataTransfer.getData('text/plain');
-      if (text) {
-        setResumeText(resumeText + text);
-      }
     }
   };
 
-  const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    event.preventDefault();
+  const handlePaste = (event: React.ClipboardEvent) => {
     const pastedText = event.clipboardData.getData('text');
-    setResumeText(pastedText);
+    if(pastedText) {
+      setResumeText(pastedText);
+    }
   };
 
   return (
-    <Card>
+    <Card onDrop={handleDrop} onDragOver={handleDragOver}>
       <CardHeader>
         <CardTitle>Your Resume</CardTitle>
       </CardHeader>
@@ -113,8 +116,6 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
           placeholder="Paste your resume here, or drag and drop a .txt or .pdf file..."
           value={resumeText}
           onChange={handleInputChange}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
           onPaste={handlePaste}
           rows={15}
           className="resize-y"
