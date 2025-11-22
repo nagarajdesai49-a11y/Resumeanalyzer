@@ -19,6 +19,19 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
     setResumeText(event.target.value);
   };
 
+  const handleDragOver = (event: React.DragEvent<HTMLTextAreaElement>) => {
+    event.preventDefault();
+  };
+  
+  const handleDrop = (event: React.DragEvent<HTMLTextAreaElement>) => {
+    event.preventDefault();
+    const text = event.dataTransfer.getData('text/plain');
+    if (text) {
+      setResumeText(resumeText + text);
+    }
+  };
+
+
   return (
     <Card>
       <CardHeader>
@@ -26,10 +39,11 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
       </CardHeader>
       <CardContent className="space-y-4">
         <Textarea
-          key={resumeText}
-          placeholder="Paste your resume here..."
-          defaultValue={resumeText}
-          onInput={handleInputChange}
+          placeholder="Paste or drag your resume here..."
+          value={resumeText}
+          onChange={handleInputChange}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
           rows={15}
           className="resize-y"
           disabled={isLoading}
