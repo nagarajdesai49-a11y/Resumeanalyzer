@@ -132,6 +132,7 @@ const ResumeInput = ({ resumeText, setResumeText, onAnalyze, isLoading }: Resume
   };
 
   const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    event.preventDefault();
     const pastedText = event.clipboardData.getData('text');
     setResumeText(pastedText);
   };
