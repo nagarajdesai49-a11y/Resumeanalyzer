@@ -22,7 +22,7 @@ const AnalysisPanel = ({ analysisResult, isLoading }: AnalysisPanelProps) => {
 
   const handleCopy = () => {
     if (!analysisResult?.optimized) return;
-    navigator.clipboard.writeText(analysisResult.optimized).then(() => {
+    navigator.clipboard.writeText(analysisResult.optimized.optimizedResume).then(() => {
       setIsCopied(true);
       toast({ title: "Copied to clipboard!" });
       setTimeout(() => setIsCopied(false), 2000);
@@ -138,7 +138,7 @@ const AnalysisPanel = ({ analysisResult, isLoading }: AnalysisPanelProps) => {
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm dark:prose-invert max-w-none rounded-md border bg-muted/50 p-4">
-              <p className="whitespace-pre-wrap">{analysisResult.optimized}</p>
+              <p className="whitespace-pre-wrap">{analysisResult.optimized.optimizedResume}</p>
             </div>
           </CardContent>
         </TabsContent>

@@ -37,7 +37,7 @@ const ResumeAnalyzer = () => {
         summarizeResumeContent({ resumeText }),
         extractKeySkills({ resumeText }),
         detectResumeWeaknesses({ resumeText }),
-        generateOptimizedResume(resumeText),
+        generateOptimizedResume({ resumeText }),
       ]);
 
       const newResult: AnalysisResult = {

@@ -11,10 +11,14 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const GenerateOptimizedResumeInputSchema = z.string().describe('The resume text to optimize.');
+const GenerateOptimizedResumeInputSchema = z.object({
+  resumeText: z.string().describe('The resume text to optimize.'),
+});
 export type GenerateOptimizedResumeInput = z.infer<typeof GenerateOptimizedResumeInputSchema>;
 
-const GenerateOptimizedResumeOutputSchema = z.string().describe('The optimized resume text.');
+const GenerateOptimizedResumeOutputSchema = z.object({
+  optimizedResume: z.string().describe('The optimized resume text.'),
+});
 export type GenerateOptimizedResumeOutput = z.infer<typeof GenerateOptimizedResumeOutputSchema>;
 
 export async function generateOptimizedResume(input: GenerateOptimizedResumeInput): Promise<GenerateOptimizedResumeOutput> {
@@ -25,9 +29,9 @@ const prompt = ai.definePrompt({
   name: 'generateOptimizedResumePrompt',
   input: {schema: GenerateOptimizedResumeInputSchema},
   output: {schema: GenerateOptimizedResumeOutputSchema},
-  prompt: `You are an expert resume writer. Please take the following resume and optimize it for better readability and impact. Incorporate modern resume writing best practices.  Focus on making it ATS friendly.
+  prompt: `You are an expert resume writer. Please take the following resume and optimize it for better readability and impact. Incorporate modern resume writing best practices. Focus on making it ATS friendly.
 
-Resume: {{{$input}}}`,
+Resume: {{{resumeText}}}`,
 });
 
 const generateOptimizedResumeFlow = ai.defineFlow(
